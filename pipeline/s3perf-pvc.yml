@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3perf
+  annotations:
+    kubernetes.io/reclaimPolicy: Delete
+  labels:
+    app: s3perf
+    paas.redhat.com/appcode: INDY-001
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: aws-efs-tier-c2
+  volumeMode: Filesystem

@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: s3perf-pipeline
+spec:
+  workspaces:
+    - name: shared-workspace
+  params:
+    - name: origin
+      description: The origin to download test artifacts from
+      default: 'https://indy-gateway.psi.redhat.com'
+      type: string
+    - name: target
+      description: The target storage service to test
+      default: 'http://pathmap-storage-service.indy--runtime-int.svc.cluster.local'
+      type: string
+  tasks:
+    - name: prepare
+      taskRef:
+        name: s3perf-prepare
+      params:
+        - name: origin
+          value: $(params.origin)
+      workspaces:
+        - name: shared
+          workspace: shared-workspace
+    - name: execute
+      taskRef:
+        name: s3perf-execute
+      params:
+        - name: target
+          value: $(params.target)
+      runAfter:
+        - prepare
+      workspaces:
+        - name: shared
+          workspace: shared-workspace

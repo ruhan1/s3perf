@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: s3perf-execute
+spec:
+  params:
+    - name: goRunner
+      description: The Go image to run the test
+      default: 'quay.io/factory2/spmm-go-runner:latest'
+      type: string
+    - name: target
+      description: The storage service to test against
+      default: 'http://pathmap-storage-service.indy--runtime-int.svc.cluster.local'
+      type: string
+  steps:
+    - name: run
+      image: $(params.goRunner)
+      command: ["/bin/bash", "-c"]
+      args:
+        - |-
+          echo "[execute] Testing...... $target"
+          go version
+          go run cmd/main.go
+      workingDir: /workspace/s3perf
+  workspaces:
+    - mountPath: /workspace
+      name: shared
