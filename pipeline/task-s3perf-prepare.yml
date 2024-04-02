@@ -27,7 +27,13 @@ spec:
              echo "[download] $(params.imageUrl)/api/content/maven/hosted/repo-1/$i"
           done
           git --version
-          git clone https://github.com/ruhan1/s3perf.git
+          if [ ! -d "s3perf" ]; then
+            git clone https://github.com/ruhan1/s3perf.git
+          else
+            cd s3perf
+            git config --global --add safe.directory /workspace/s3perf
+            git pull origin main
+          fi
       workingDir: /workspace
   workspaces:
     - mountPath: /workspace
