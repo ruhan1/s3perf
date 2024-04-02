@@ -4,6 +4,7 @@ metadata:
   name: s3perf
   annotations:
     kubernetes.io/reclaimPolicy: Delete
+    trident.netapp.io/reclaimPolicy: Delete
   labels:
     app: s3perf
     paas.redhat.com/appcode: INDY-001
@@ -13,5 +14,5 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: aws-efs-tier-c2
+  storageClassName: netapp-nfs #aws-efs-tier-c2
   volumeMode: Filesystem
