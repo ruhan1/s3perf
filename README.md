@@ -1,11 +1,14 @@
 # s3perf
 
-This program tests the performance of a AWS S3 based storage service. You can simple run it by:
-go run cmd/main.go
+This program tests the performance of a AWS S3 based storage service. You can run it by two steps:
 
-You can also create Openshift pipeline (and tasks) by below and run the pipeline via 'tkn' or Openshift console.
+go run main.go prepare $origin
 
-oc apply -f task-s3perf-prepare.yml
+go run main.go execute $target
+
+You can also create Openshift pipeline and tasks as below and run the pipeline via 'tkn' or Openshift console.
+
+oc apply -f task-s3perf-init.yml
 
 oc apply -f task-s3perf-execute.yml
 

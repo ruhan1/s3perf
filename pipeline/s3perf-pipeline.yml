@@ -15,12 +15,9 @@ spec:
       default: 'http://pathmap-storage-service.indy--runtime-int.svc.cluster.local'
       type: string
   tasks:
-    - name: prepare
+    - name: init
       taskRef:
-        name: s3perf-prepare
-      params:
-        - name: origin
-          value: $(params.origin)
+        name: s3perf-init
       workspaces:
         - name: shared
           workspace: shared-workspace
@@ -28,10 +25,12 @@ spec:
       taskRef:
         name: s3perf-execute
       params:
+        - name: origin
+          value: $(params.origin)
         - name: target
           value: $(params.target)
       runAfter:
-        - prepare
+        - init
       workspaces:
         - name: shared
           workspace: shared-workspace

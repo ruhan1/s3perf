@@ -8,6 +8,10 @@ spec:
       description: The Go image to run the test
       default: 'quay.io/factory2/spmm-go-runner:latest'
       type: string
+    - name: origin
+      description: The origin indy to download artifact from
+      default: 'https://indy-gateway.psi.redhat.com'
+      type: string
     - name: target
       description: The storage service to test against
       default: 'http://pathmap-storage-service.indy--runtime-int.svc.cluster.local'
