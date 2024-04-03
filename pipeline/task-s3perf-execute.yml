@@ -24,7 +24,7 @@ spec:
         - |-
           echo "[execute] Testing...... $target"
           go version
-          go run cmd/main.go
+          go run main.go prepare $origin
       workingDir: /workspace/s3perf
   workspaces:
     - mountPath: /workspace
