@@ -21,6 +21,7 @@ spec:
             cd s3perf
             git config --global --add safe.directory /workspace/s3perf
             git pull origin main
+            git rev-parse HEAD
           fi
       workingDir: /workspace
   workspaces:
