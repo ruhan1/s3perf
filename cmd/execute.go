@@ -36,7 +36,7 @@ func Exeute(target, foloId string) {
 	foloRecord := common.GetFoloRecordFromFile(fileLoc)
 	testEntries := foloRecord.Downloads[:1] // test 1 file
 
-	fmt.Printf("\nStart uploading artifacts.")
+	fmt.Printf("\nStart uploading artifacts.\n")
 	fmt.Println("==========================================")
 	broken := false
 	for index, entry := range testEntries {
@@ -54,7 +54,7 @@ func Exeute(target, foloId string) {
 		fmt.Printf("Uploading artifacts finished.\n\n")
 	}
 
-	fmt.Printf("\nStart downloading artifacts.")
+	fmt.Printf("\nStart downloading artifacts.\n")
 	fmt.Println("==========================================")
 	tmpDir := "/tmp"
 	for index, entry := range testEntries {

@@ -42,7 +42,7 @@ func Run(originIndy, foloId string) {
 	dirLoc := TEST_DIR + foloId
 	os.MkdirAll(dirLoc, os.FileMode(0755))
 
-	fmt.Printf("\nStart preparing artifacts.")
+	fmt.Printf("\nStart preparing artifacts.\n")
 	fmt.Println("==========================================")
 	broken := false
 	for index, down := range foloRecord.Downloads {
