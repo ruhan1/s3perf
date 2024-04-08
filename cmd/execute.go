@@ -34,15 +34,15 @@ func Exeute(target, foloId string) {
 	dirLoc := TEST_DIR + foloId
 
 	foloRecord := common.GetFoloRecordFromFile(fileLoc)
-	testEntries := foloRecord.Downloads[:5] // test 5 files
+	testEntries := foloRecord.Downloads[:1] // test 1 file
 
-	fmt.Println("Start uploading artifacts.")
-	fmt.Printf("==========================================\n\n")
+	fmt.Printf("\nStart uploading artifacts.")
+	fmt.Println("==========================================")
 	broken := false
 	for index, entry := range testEntries {
 		storageUrl := fmt.Sprintf("%s%s", target, path.Join("/api/storage/content", entry.StoreKey, entry.Path))
 		localFile := path.Join(dirLoc, entry.Path)
-		broken = common.UploadFile(storageUrl, localFile)
+		broken = !common.UploadFile(storageUrl, localFile)
 		if broken {
 			fmt.Printf("Uploading artifacts failed (done: %d).\n\n", index)
 			break
@@ -54,12 +54,12 @@ func Exeute(target, foloId string) {
 		fmt.Printf("Uploading artifacts finished.\n\n")
 	}
 
-	fmt.Println("Start downloading artifacts.")
-	fmt.Printf("==========================================\n\n")
+	fmt.Printf("\nStart downloading artifacts.")
+	fmt.Println("==========================================")
 	tmpDir := "/tmp"
 	for index, entry := range testEntries {
 		storageUrl := fmt.Sprintf("%s%s", target, path.Join("/api/storage/content", entry.StoreKey, entry.Path))
-		broken = DownloadFunc(tmpDir, entry.Md5, storageUrl, entry.Path)
+		broken = !DownloadFunc(tmpDir, entry.Md5, storageUrl, entry.Path)
 		if broken {
 			fmt.Printf("Downloading artifacts failed (done: %d).\n\n", index)
 			break

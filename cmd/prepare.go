@@ -42,13 +42,13 @@ func Run(originIndy, foloId string) {
 	dirLoc := TEST_DIR + foloId
 	os.MkdirAll(dirLoc, os.FileMode(0755))
 
-	fmt.Println("Start preparing artifacts.")
-	fmt.Printf("==========================================\n\n")
+	fmt.Printf("\nStart preparing artifacts.")
+	fmt.Println("==========================================")
 	broken := false
 	for index, down := range foloRecord.Downloads {
 		repoPath := strings.ReplaceAll(down.StoreKey, ":", "/")
 		downloadUrl := fmt.Sprintf("%s%s", originIndy, path.Join("/api/content", repoPath, down.Path))
-		broken = DownloadFunc(dirLoc, down.Md5, downloadUrl, down.Path)
+		broken = !DownloadFunc(dirLoc, down.Md5, downloadUrl, down.Path)
 		if broken {
 			fmt.Printf("Preparing artifacts failed (done: %d).\n\n", index)
 			break
