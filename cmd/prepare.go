@@ -13,10 +13,9 @@ import (
 )
 
 func NewPrepareCmd() *cobra.Command {
-
 	exec := &cobra.Command{
 		Use:   "prepare $indy_url $folo_track_id",
-		Short: "download artifacts in folo record to local directory './test/${folo_track_id}'",
+		Short: "Download artifacts in folo record to local directory './test/${folo_track_id}'",
 		Run: func(cmd *cobra.Command, args []string) {
 			indyURL := args[0]
 			foloTrackId := ""
@@ -29,7 +28,6 @@ func NewPrepareCmd() *cobra.Command {
 			Run(indyURL, foloTrackId)
 		},
 	}
-
 	return exec
 }
 
@@ -39,6 +37,31 @@ const (
 )
 
 func Run(originIndy, foloId string) {
+	foloRecord := GetFoloRecord(originIndy, foloId)
+
+	dirLoc := TEST_DIR + foloId
+	os.MkdirAll(dirLoc, os.FileMode(0755))
+
+	fmt.Println("Start preparing artifacts.")
+	fmt.Printf("==========================================\n\n")
+	broken := false
+	for index, down := range foloRecord.Downloads {
+		repoPath := strings.ReplaceAll(down.StoreKey, ":", "/")
+		downloadUrl := fmt.Sprintf("%s%s", originIndy, path.Join("/api/content", repoPath, down.Path))
+		broken = DownloadFunc(dirLoc, down.Md5, downloadUrl, down.Path)
+		if broken {
+			fmt.Printf("Preparing artifacts failed (done: %d).\n\n", index)
+			break
+		}
+	}
+	if broken {
+		os.Exit(1)
+	} else {
+		fmt.Printf("Preparing artifacts finished.\n\n")
+	}
+}
+
+func GetFoloRecord(originIndy, foloId string) common.TrackedContent {
 	fileLoc := TEST_DIR + foloId + "-report.json"
 	if !common.FileOrDirExists(fileLoc) {
 		data := common.GetFoloRecordAsString(originIndy, foloId)
@@ -47,41 +70,17 @@ func Run(originIndy, foloId string) {
 			log.Fatal(err)
 		}
 	}
-	dirLoc := TEST_DIR + foloId
-	//if common.FileOrDirExists(dirLoc) {
-	//	log.Println(dirLoc + " already exist, skip prepare.")
-	//	return
-	//}
-	os.MkdirAll(dirLoc, os.FileMode(0755))
+	return common.GetFoloRecordFromFile(fileLoc)
+}
 
-	foloRecord := common.GetFoloRecordFromFile(fileLoc)
-
-	fmt.Println("Start downloading artifacts.")
-	fmt.Printf("==========================================\n\n")
-	downloadFunc := func(md5str, downloadURL, localPath string) bool {
-		fileLoc := path.Join(dirLoc, localPath)
-		if common.FileOrDirExists(fileLoc) {
-			return true // already done
-		}
-		success, _ := common.DownloadFile(downloadURL, fileLoc)
-		if success {
-			return common.Md5Check(fileLoc, md5str)
-		}
-		return false
+func DownloadFunc(dirLoc, md5str, downloadURL, localPath string) bool {
+	fileLoc := path.Join(dirLoc, localPath)
+	if common.FileOrDirExists(fileLoc) {
+		return true // already exists
 	}
-
-	broken := false
-	for index, down := range foloRecord.Downloads {
-		repoPath := strings.ReplaceAll(down.StoreKey, ":", "/")
-		downloadUrl := fmt.Sprintf("%s%s", originIndy, path.Join("/api/content", repoPath, down.Path))
-		//log.Println("[Download] " + downloadUrl)
-		broken = !downloadFunc(down.Md5, downloadUrl, down.Path)
-		if broken {
-			fmt.Printf("Download artifacts failed (done: %d).\n\n", index)
-			break
-		}
+	success, _ := common.DownloadFile(downloadURL, fileLoc)
+	if success {
+		return common.Md5Check(fileLoc, md5str)
 	}
-	if !broken {
-		fmt.Printf("Download artifacts finished.\n\n")
-	}
+	return false
 }

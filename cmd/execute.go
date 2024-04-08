@@ -2,21 +2,19 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	"os"
 	"path"
-	"strings"
 
 	common "github.com/commonjava/indy-tests/pkg/common"
 	"github.com/spf13/cobra"
 )
 
 func NewExecuteCmd() *cobra.Command {
-
 	exec := &cobra.Command{
 		Use:   "execute $target $folo_track_id",
-		Short: "upload and download artifacts in folo record ${folo_track_id}",
+		Short: "Upload and download artifacts in folo record ${folo_track_id}",
 		Run: func(cmd *cobra.Command, args []string) {
-			indyURL := args[0]
+			target := args[0]
 			foloTrackId := ""
 			if len(args) >= 2 {
 				foloTrackId = args[1]
@@ -24,21 +22,52 @@ func NewExecuteCmd() *cobra.Command {
 			if common.IsEmptyString(foloTrackId) {
 				foloTrackId = DEFAULT_FOLO_TRACKING_ID
 			}
-			Exeute(indyURL, foloTrackId)
+			Exeute(target, foloTrackId)
 		},
 	}
 
 	return exec
 }
 
-func Exeute(originIndy, foloId string) {
+func Exeute(target, foloId string) {
 	fileLoc := TEST_DIR + foloId + "-report.json"
-	//dirLoc := TEST_DIR + foloId
+	dirLoc := TEST_DIR + foloId
 
 	foloRecord := common.GetFoloRecordFromFile(fileLoc)
-	for _, down := range foloRecord.Downloads {
-		repoPath := strings.ReplaceAll(down.StoreKey, ":", "/")
-		downUrl := fmt.Sprintf("%s%s", originIndy, path.Join("/api/content", repoPath, down.Path))
-		log.Println("[Up/Download] " + downUrl)
+	testEntries := foloRecord.Downloads[:5] // test 5 files
+
+	fmt.Println("Start uploading artifacts.")
+	fmt.Printf("==========================================\n\n")
+	broken := false
+	for index, entry := range testEntries {
+		storageUrl := fmt.Sprintf("%s%s", target, path.Join("/api/storage/content", entry.StoreKey, entry.Path))
+		localFile := path.Join(dirLoc, entry.Path)
+		broken = common.UploadFile(storageUrl, localFile)
+		if broken {
+			fmt.Printf("Uploading artifacts failed (done: %d).\n\n", index)
+			break
+		}
+	}
+	if broken {
+		os.Exit(1)
+	} else {
+		fmt.Printf("Uploading artifacts finished.\n\n")
+	}
+
+	fmt.Println("Start downloading artifacts.")
+	fmt.Printf("==========================================\n\n")
+	tmpDir := "/tmp"
+	for index, entry := range testEntries {
+		storageUrl := fmt.Sprintf("%s%s", target, path.Join("/api/storage/content", entry.StoreKey, entry.Path))
+		broken = DownloadFunc(tmpDir, entry.Md5, storageUrl, entry.Path)
+		if broken {
+			fmt.Printf("Downloading artifacts failed (done: %d).\n\n", index)
+			break
+		}
+	}
+	if broken {
+		os.Exit(1)
+	} else {
+		fmt.Printf("Uploading artifacts finished.\n\n")
 	}
 }

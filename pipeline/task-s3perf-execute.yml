@@ -25,6 +25,7 @@ spec:
           echo "[execute] Testing......"
           go version
           go run main.go prepare $(params.origin)
+          go run main.go execute $(params.target)
       workingDir: /workspace/s3perf
   workspaces:
     - mountPath: /workspace
