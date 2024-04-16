@@ -34,7 +34,7 @@ func Exeute(target, foloId string) {
 	dirLoc := TEST_DIR + foloId
 
 	foloRecord := common.GetFoloRecordFromFile(fileLoc)
-	testEntries := foloRecord.Downloads[:1] // test 1 file
+	testEntries := foloRecord.Downloads //[:1] // test 1 file
 
 	fmt.Printf("\nStart uploading artifacts.\n")
 	fmt.Println("==========================================")
