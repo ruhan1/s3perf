@@ -68,6 +68,6 @@ func Exeute(target, foloId string) {
 	if broken {
 		os.Exit(1)
 	} else {
-		fmt.Printf("Uploading artifacts finished.\n\n")
+		fmt.Printf("Downloading artifacts finished.\n\n")
 	}
 }
